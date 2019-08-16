@@ -16,7 +16,7 @@ func StartPYTraining(clientIPs []string, hostIP string) {
 
 	pwd := strings.Replace(string(tmpPwd),"\n","", -1) + "/train/"
 
-	trainPhrase += "python3 " + pwd + "distribute.py --ps_hosts=" + hostIP + ":2222 --worker_hosts="
+	trainPhrase += "python3 " + pwd + "distribute.py --ps_hosts=" + hostIP + ":10563 --worker_hosts="
 
 	trainPhrase += clientIPs[0] + ":2225"
 
@@ -40,7 +40,7 @@ func EnterPYTraining(clientIPs []string, hostIP string, index int) {
 
 	pwd := strings.Replace(string(tmpPwd),"\n","", -1) + "/train/"
 
-	trainPhrase += "python3 " + pwd +"distribute.py --ps_hosts=" + hostIP + ":2222 --worker_hosts="
+	trainPhrase += "python3 " + pwd +"distribute.py --ps_hosts=" + hostIP + ":10563 --worker_hosts="
 
 	trainPhrase += clientIPs[0] + ":2225"
 
