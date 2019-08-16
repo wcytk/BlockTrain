@@ -21,7 +21,7 @@ func StartPYTraining(clientIPs []string, hostIP string) {
 	trainPhrase += clientIPs[0] + ":2225"
 
 	for i := 1; i < len(clientIPs); i++ {
-		trainPhrase += "," + clientIPs[i] + ":2225"
+		trainPhrase += "," + clientIPs[i] + ":222" + strconv.Itoa(5+i)
 	}
 
 	trainPhrase += " --job_name=ps --task_index=0"
@@ -45,12 +45,12 @@ func EnterPYTraining(clientIPs []string, hostIP string, index int) {
 	trainPhrase += clientIPs[0] + ":2225"
 
 	for i := 1; i < len(clientIPs); i++ {
-		trainPhrase += "," + clientIPs[i] + ":222" + string(5+i)
+		trainPhrase += "," + clientIPs[i] + ":222" + strconv.Itoa(5+i)
 	}
 
 	trainPhrase += " --job_name=worker --task_index=" + strconv.Itoa(index)
 
-	//log.Println(trainPhrase)
+	log.Println(trainPhrase)
 
 	cmd := exec.Command("/bin/bash","-c", "source " + pwd + "venv/bin/activate; " + trainPhrase)
 	cmd.Stdout = os.Stdout
