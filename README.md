@@ -44,7 +44,7 @@ bash setup_centos.sh
 ```
 ```bash
 # 一键编译运行
-./run.sh
+bash run.sh
 ```
 ```
 当然你也可以自己进行编译和运行:
