@@ -42,7 +42,7 @@ func EnterPYTraining(clientIPs []string, hostIP string, index int) {
 
 	//log.Println(trainPhrase)
 
-	cmd := exec.Command("/bin/bash","-c", "venv/bin/activate;" + trainPhrase)
+	cmd := exec.Command("/bin/bash","-c", "source venv/bin/activate;" + trainPhrase)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	log.Println(cmd.Start())
