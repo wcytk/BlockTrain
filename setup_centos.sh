@@ -59,7 +59,7 @@ else
 	fi
 	PYTHONDIR=/usr/local/python3
 	if [ ! -d "$PYTHONDIR" ]; then
-		0mkdir $PYTHONDIR
+		mkdir $PYTHONDIR
 	else
 		echo "$PYTHONDIR already exists"
 	fi
