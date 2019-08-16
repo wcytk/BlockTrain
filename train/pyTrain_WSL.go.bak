@@ -5,18 +5,12 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
-	"strings"
 )
 
 func StartPYTraining(clientIPs []string, hostIP string) {
 	var trainPhrase string
 
-	tmp :=exec.Command("/bin/bash","-c", "pwd;")
-	tmpPwd, _ := tmp.CombinedOutput()
-
-	pwd := strings.Replace(string(tmpPwd),"\n","", -1) + "/train/"
-
-	trainPhrase += "python3" + pwd + "distribute.py --ps_hosts=" + hostIP + ":2222 --worker_hosts="
+	trainPhrase += "python3 distribute.py --ps_hosts=" + hostIP + ":2222 --worker_hosts="
 
 	trainPhrase += clientIPs[0] + ":2225"
 
@@ -26,7 +20,9 @@ func StartPYTraining(clientIPs []string, hostIP string) {
 
 	trainPhrase += " --job_name=ps --task_index=0"
 
-	cmd := exec.Command("/bin/bash","-c", "source " + pwd + trainPhrase)
+	cmd := exec.Command("ubuntu1804", "-c", "/bin/bash;"+
+		"source /root/work/go/venv/bin/activate;"+
+		"cd /root/work/go;"+trainPhrase)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	log.Println(cmd.Start())
@@ -35,12 +31,7 @@ func StartPYTraining(clientIPs []string, hostIP string) {
 func EnterPYTraining(clientIPs []string, hostIP string, index int) {
 	var trainPhrase string
 
-	tmp :=exec.Command("/bin/bash","-c", "pwd;")
-	tmpPwd, _ := tmp.CombinedOutput()
-
-	pwd := strings.Replace(string(tmpPwd),"\n","", -1) + "/train/"
-
-	trainPhrase += "python3 " + pwd +"distribute.py --ps_hosts=" + hostIP + ":2222 --worker_hosts="
+	trainPhrase += "python3 distribute.py --ps_hosts=" + hostIP + ":2222 --worker_hosts="
 
 	trainPhrase += clientIPs[0] + ":2225"
 
@@ -52,7 +43,9 @@ func EnterPYTraining(clientIPs []string, hostIP string, index int) {
 
 	//log.Println(trainPhrase)
 
-	cmd := exec.Command("/bin/bash","-c", "source " + pwd + "/venv/bin/activate; " + trainPhrase)
+	cmd := exec.Command("ubuntu1804", "-c", "/bin/bash;"+
+		"source /root/work/go/venv/bin/activate;"+
+		"cd /root/work/go;"+trainPhrase)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	log.Println(cmd.Start())
