@@ -45,7 +45,7 @@ func EnterPYTraining(clientIPs []string, hostIP string, index int) {
 	trainPhrase += clientIPs[0] + ":2225"
 
 	for i := 1; i < len(clientIPs); i++ {
-		trainPhrase += "," + clientIPs[i] + ":2225"
+		trainPhrase += "," + clientIPs[i] + ":222" + string(5+i)
 	}
 
 	trainPhrase += " --job_name=worker --task_index=" + strconv.Itoa(index)
