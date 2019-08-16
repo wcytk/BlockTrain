@@ -62,25 +62,25 @@ go build run.go
 P.S. 现在还没有对用户身份进行管理
 首先由一个用户开启自己的模型训练
 
-http://<your-ip>/prepareTraining
+http://<your-ip>:12345/prepareTraining
 ```
 ```http
 然后由其他的用户加入这个模型训练
 注意，加入模型训练后就不能退出，如果退出，将导致这个模型训练失败
 
-http://<your-ip>/addIP
+http://<your-ip>:12345/addIP
 ```
 ```http
 当开启模型训练的用户认为节点数量足够时，就可以开始训练
 
-http://<your-ip>/startTraining
+http://<your-ip>:12345/startTraining
 ```
 ```http
 一般模型训练会自动结束（如果训练不能正常结束，可能需要停止进程）
 当模型训练结束时
 开启模型训练的用户可以关闭这个模型训练的窗口
 
-http://<your-ip>/stopTraining
+http://<your-ip>:12345/stopTraining
 ```
 
 ## ***需要注意的事项***

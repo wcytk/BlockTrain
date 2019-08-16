@@ -20,7 +20,9 @@ func StartPYTraining(clientIPs []string, hostIP string) {
 
 	trainPhrase += " --job_name=ps --task_index=0"
 
-	cmd := exec.Command("/bin/bash","-c", "source venv/bin/activate;" + trainPhrase)
+	cmd := exec.Command("ubuntu1804","-c", "/bin/bash;" +
+		"source /root/work/go/venv/bin/activate;" +
+		"cd /root/work/go;" + trainPhrase)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	log.Println(cmd.Start())
@@ -42,7 +44,9 @@ func EnterPYTraining(clientIPs []string, hostIP string, index int) {
 
 	//log.Println(trainPhrase)
 
-	cmd := exec.Command("/bin/bash","-c", "venv/bin/activate;" + trainPhrase)
+	cmd := exec.Command("ubuntu1804","-c", "/bin/bash;" +
+		"source /root/work/go/venv/bin/activate;" +
+		"cd /root/work/go;" + trainPhrase)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	log.Println(cmd.Start())

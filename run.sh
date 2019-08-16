@@ -7,4 +7,4 @@ If you want to use GOPATH and it's not configured, then you can edit .bashrc in 
 
 go install run.go
 go build run.go
-./test
+./run
