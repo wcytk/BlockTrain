@@ -34,6 +34,8 @@
 bash setup_ubuntu.sh
 # CentOS下的安装
 bash setup_centos.sh
+
+# P.S. 在安装的过程中会有两个需要输入（确认的地方），第一个是询问是否使用镜像加速，第二个是填写GOPATH（默认是/code/go）
 ```
 ```
 环境全部搭建完后，就可以运行这个分布式的模型训练系统
