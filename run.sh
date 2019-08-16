@@ -5,6 +5,9 @@
 If you want to use GOPATH and it's not configured, then you can edit .bashrc in your current user's folder(like /home or /root), and add export GOPATH=/home/code(the absolute location of the folder you want to use)
 !
 
+echo "Now installing run.go ..."
 go install run.go
+echo "Now building run.go ..."
 go build run.go
+echo "Starting server ..."
 ./run
