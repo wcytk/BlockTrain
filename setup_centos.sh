@@ -131,7 +131,7 @@ source $DIR/train/venv/bin/activate && python -m pip install --upgrade pip setup
 
 # 更新环境变量
 # Update environment
-source /root/.bashrc
+source /etc/profile
 
 # 清除安装包
 # Cleaning up package
