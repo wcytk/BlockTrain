@@ -81,7 +81,7 @@ else
 	echo "Your go environment hasn't been installed!"
 	echo "Where do you want to set the GOPATH:"
 	read GOPATH
-	if [ $GOPATH == "" ]; then
+	if [ "$GOPATH" == "" ]; then
 		GOPATH="/code/go"
 	fi
 	if [ ! -d "$GOPATH" ]; then
