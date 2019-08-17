@@ -27,9 +27,11 @@ else
 	echo "ps server stoped!"
 fi
 
+# 遍历所有可能的worker端口，全部进行停止
+# Traversal all possible worker port, and shutdown processes
 for(( i = 0; i < 10; i++ ));
 do
-	port=(2225 + i)
+	port=$((2225 + i))
 	worker=$( lsof -i :"$port" | grep "(LISTEN)" | awk '{printf $2}' )
 
 	if [ "$worker" == "" ]; then
