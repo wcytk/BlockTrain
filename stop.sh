@@ -30,7 +30,7 @@ fi
 for(( i = 0; i < 10; i++ ));
 do
 	port = 2225 + i
-	worker=$( lsof -i :$port | grep "(LISTEN)" | awk '{printf $2}' )
+	worker=$( lsof -i :"$port" | grep "(LISTEN)" | awk '{printf $2}' )
 
 	if [ "$worker" == "" ]; then
 		echo "worker server on port $port has been stopped or not started!"
