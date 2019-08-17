@@ -16,4 +16,4 @@ go install run.go
 echo "Now building run.go ..."
 go build -o startTrainServer run.go
 echo "Starting server ..."
-./startTrainServer
+setsid ./startTrainServer &
