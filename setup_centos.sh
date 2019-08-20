@@ -59,14 +59,13 @@ else
 	fi
 	PYTHONDIR=/usr/local/python3
 	if [ ! -d "$PYTHONDIR" ]; then
-		mkdir $PYTHONDIR
+		0mkdir $PYTHONDIR
 	else
 		echo "$PYTHONDIR already exists"
 	fi
 	cd /root/Python-3.6.6 && ./configure --prefix=/usr/local/python3
 	cd /root/Python-3.6.6 && make && make install
 	ln -s /usr/local/python3/bin/python3 /usr/bin/python3
-	python3 -m ensurepip
 	ln -s /usr/local/python3/bin/pip3 /usr/bin/pip3
 fi
 
@@ -81,9 +80,6 @@ else
 	echo "Your go environment hasn't been installed!"
 	echo "Where do you want to set the GOPATH:"
 	read GOPATH
-	if [ "$GOPATH" == "" ]; then
-		GOPATH="/code/go"
-	fi
 	if [ ! -d "$GOPATH" ]; then
 		mkdir $GOPATH
 		echo "Directory $GOPATH created!"
@@ -106,6 +102,7 @@ else
 		echo "Directory already exists ..."
 	fi
 	GOARCH=$(dpkg --print-architecture)
+	echo "export GO111MODULE=on" >> /etc/profile
 	echo "export GOROOT=/usr/local/go" >> /etc/profile
 	echo "export GOOS=linux" >> /etc/profile
 	echo "export GOARCH=$GOARCH" >> /etc/profile
@@ -123,7 +120,7 @@ fi
 
 # Create python virtual environment
 # 创建python虚拟环境
-python3 -m venv $DIR/train/venv
+python3 -m venv $DIR/venv
 
 # -i选项是使用中国的加速镜像站，如果不需要可以去除
 # -i is for mirror in China, if you don't need it, just delete from "-i"

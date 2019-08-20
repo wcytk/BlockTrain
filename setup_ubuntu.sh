@@ -44,9 +44,6 @@ else
 	echo "Your go environment hasn't been installed!"
 	echo "Where do you want to set the GOPATH:"
 	read GOPATH
-	if [ "$GOPATH" == "" ]; then
-		GOPATH="/code/go"
-	fi
 	if [ ! -d "$GOPATH" ]; then
 		mkdir $GOPATH
 		echo "Directory $GOPATH created!"
@@ -69,6 +66,7 @@ else
 		echo "Directory $GODIR already exists ..."
 	fi
 	GOARCH=$(dpkg --print-architecture)
+	echo "export GO111MODULE=on" >> /root/.bashrc
 	echo "export GOROOT=/usr/local/go" >> /root/.bashrc
 	echo "export GOOS=linux" >> /root/.bashrc
 	echo "export GOARCH=$GOARCH" >> /root/.bashrc
