@@ -1,10 +1,11 @@
 package network
 
 import (
-	"../train"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/wcytk/trainThroughBlockchain/train"
+	"github.com/wcytk/trainThroughBlockchain/transaction"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -16,9 +17,15 @@ type Server struct {
 
 var clientIPs []string
 
+var clientAccounts []string
+
 var hostIP string
 
 var isTraining = false
+
+var fromAddr string
+
+var passphrase string
 
 func NewServer() *Server {
 	server := &Server{}
@@ -61,31 +68,35 @@ func (server *Server) addIP(w http.ResponseWriter, r *http.Request) {
 	if isTraining == false {
 		w.Write([]byte("The host haven't start a training!"))
 	} else {
-		if ClientPublicIP(r) == "" {
-			w.Write([]byte("You are communicating in local network!\n"))
-			w.Write([]byte("Your local ip is " + ClientIP(r) + "\n"))
-			// 对clientIP进行查找，查看客户是否已经加入训练
-			// Search in clientIP to determine whether client has entered the training
-			hasEntered := sort.Search(len(clientIPs), func(hasEntered int) bool {
-				return clientIPs[hasEntered] >= ClientIP(r)
-			})
+		_ = r.ParseForm()
+		if r.Form["account"][0] != "" {
+			if ClientPublicIP(r) == "" {
+				w.Write([]byte("You are communicating in local network!\n"))
+				w.Write([]byte("Your local ip is " + ClientIP(r) + "\n"))
+				// 对clientIP进行查找，查看客户是否已经加入训练
+				// Search in clientIP to determine whether client has entered the training
+				hasEntered := sort.Search(len(clientIPs), func(hasEntered int) bool {
+					return clientIPs[hasEntered] >= ClientIP(r)
+				})
 
-			if hasEntered < len(clientIPs) && ClientIP(r) == clientIPs[hasEntered] {
-				w.Write([]byte("You have already entered the training!\n"))
+				if hasEntered < len(clientIPs) && ClientIP(r) == clientIPs[hasEntered] {
+					w.Write([]byte("You have already entered the training!\n"))
+				} else {
+					clientIPs = append(clientIPs, ClientIP(r))
+					clientAccounts = append(clientAccounts, r.Form["account"][0])
+				}
 			} else {
-				clientIPs = append(clientIPs, ClientIP(r))
-			}
-		} else {
-			w.Write([]byte("Your public ip is " + ClientPublicIP(r) + "\n"))
+				w.Write([]byte("Your public ip is " + ClientPublicIP(r) + "\n"))
 
-			hasEntered := sort.Search(len(clientIPs), func(hasEntered int) bool {
-				return clientIPs[hasEntered] >= ClientPublicIP(r)
-			})
+				hasEntered := sort.Search(len(clientIPs), func(hasEntered int) bool {
+					return clientIPs[hasEntered] >= ClientPublicIP(r)
+				})
 
-			if hasEntered < len(clientIPs) && ClientPublicIP(r) == clientIPs[hasEntered] {
-				w.Write([]byte("You have already entered the training!\n"))
-			} else {
-				clientIPs = append(clientIPs, ClientPublicIP(r))
+				if hasEntered < len(clientIPs) && ClientPublicIP(r) == clientIPs[hasEntered] {
+					w.Write([]byte("You have already entered the training!\n"))
+				} else {
+					clientIPs = append(clientIPs, ClientPublicIP(r))
+				}
 			}
 		}
 		// 对客户的所有的IP进行排序
@@ -107,6 +118,13 @@ func (server *Server) prepareTraining(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Now a training is hosting in this IP"))
 		hostIP = host
 		isTraining = true
+
+		fmt.Print("Input your account: ")
+		_, _ = fmt.Scanln(&fromAddr)
+
+		fmt.Print("Input your passphrase: ")
+		_, _ = fmt.Scanln(&passphrase)
+
 	}
 }
 
@@ -116,6 +134,9 @@ func (server *Server) startTraining(w http.ResponseWriter, r *http.Request) {
 	} else {
 		train.StartPYTraining(clientIPs, hostIP)
 		postTrainingRequest(clientIPs, hostIP)
+		for i := 0; i < len(clientIPs); i++ {
+			transaction.StartTransaction(fromAddr, clientAccounts[i], passphrase)
+		}
 	}
 }
 

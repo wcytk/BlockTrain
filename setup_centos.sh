@@ -118,6 +118,10 @@ else
 	fi)
 fi
 
+# 检测和安装ipfs环境
+# Detect and install ipfs environment
+source /etc/profile && bash $DIR/install_ipfs.sh
+
 # Create python virtual environment
 # 创建python虚拟环境
 python3 -m venv $DIR/venv
