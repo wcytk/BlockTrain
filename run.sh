@@ -14,6 +14,6 @@ echo "Done!"
 echo "Now installing run.go ..."
 go install run.go
 echo "Now building run.go ..."
-go build -o startTrainServer run.go
+go build
 echo "Starting server ..."
-setsid ./startTrainServer &
+setsid ./BlockTrain &

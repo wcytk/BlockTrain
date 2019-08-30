@@ -6,7 +6,7 @@
 # 关闭服务器进程
 # Stop server's process
 echo "Shuting down server ..."
-server=$( ps -ef | grep startTrainServer | grep -v grep | awk '{print $2}' )
+server=$( ps -ef | grep BlockTrain | grep -v grep | awk '{print $2}' )
 
 if [ "$server" == "" ]; then
 	echo "Server is not started!"
