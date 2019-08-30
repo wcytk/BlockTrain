@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/wcytk/trainThroughBlockchain/network"
+	"github.com/wcytk/BlockTrain/network"
 )
 
 func main() {
