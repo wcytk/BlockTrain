@@ -307,7 +307,7 @@ func uploadFileHandler() http.HandlerFunc {
 
 		w.Write([]byte("SUCCESS"))
 
-		toIpfs := "ipfs add " + uploadPath + "/" + fileName+"."+fileType + " | awk '{print $2 \" \" $3}' >> "+ string(tmpPwd) +"file.txt"
+		toIpfs := "ipfs add " + uploadPath + "/" + fileName+"."+fileType + " | awk '{print $2 \" \" $3}' >> "+ string(tmpPwd) +"../upload/file.txt"
 
 		cmd := exec.Command("/bin/bash", "-c", toIpfs)
 		cmd.Stdout = os.Stdout
