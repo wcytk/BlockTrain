@@ -59,7 +59,7 @@ func (server *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (server *Server) setRoute() {
 	tmp := exec.Command("/bin/bash", "-c", "pwd;")
 	tmpPwd, _ := tmp.CombinedOutput()
-	uploadPath = strings.Replace(string(tmpPwd),"\n","", -1) + "/../upload"
+	uploadPath = strings.Replace(string(tmpPwd),"\n","", -1) + "/upload"
 	http.HandleFunc("/", server.ServeHTTP)
 	http.HandleFunc("/addIP", server.addIP)
 	http.HandleFunc("/prepareTraining", server.prepareTraining)
