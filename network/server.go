@@ -2,6 +2,8 @@ package network
 
 import (
 	"bytes"
+	"crypto/md5"
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"github.com/wcytk/trainThroughBlockchain/train"
@@ -9,7 +11,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"sort"
+	"strings"
 )
 
 type Server struct {
@@ -33,6 +39,11 @@ func NewServer() *Server {
 	return server
 }
 
+const (
+	maxUploadSize = 2 * 1024 * 2014 // 2MB
+	uploadPath    = "D:/Work/Project/2019 Summer/distributeTensorflowExample/upload"
+)
+
 func (server *Server) Start() {
 	if err := http.ListenAndServe(":12345", nil); err != nil {
 		fmt.Println(err)
@@ -41,17 +52,19 @@ func (server *Server) Start() {
 }
 
 func (server *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello World!"))
+	w.Write([]byte("Welcome to BlockTrain!"))
 }
 
 func (server *Server) setRoute() {
 	http.HandleFunc("/", server.ServeHTTP)
-	http.HandleFunc("/req", server.req)
 	http.HandleFunc("/addIP", server.addIP)
 	http.HandleFunc("/prepareTraining", server.prepareTraining)
 	http.HandleFunc("/startTraining", server.startTraining)
 	http.HandleFunc("/stopTraining", server.stopTraining)
 	http.HandleFunc("/enterTraining", server.enterTraining)
+	http.HandleFunc("/upload", uploadFileHandler())
+	fs := http.FileServer(http.Dir(uploadPath))
+	http.Handle("/files/", http.StripPrefix("/files", fs))
 }
 
 func (server *Server) req(w http.ResponseWriter, r *http.Request) {
@@ -154,7 +167,6 @@ func postTrainingRequest(clientIPs []string, hostIP string) {
 	mapMassage["clientIPs"] = clientIPs
 	mapMassage["hostIP"] = hostIP
 
-
 	for i := 0; i < len(clientIPs); i++ {
 		ip := clientIPs[i]
 		url := "http://" + ip + ":12345/enterTraining"
@@ -229,4 +241,88 @@ func (server *Server) enterTraining(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Write([]byte("You haven't entered the training yet!"))
 	}
+}
+
+func uploadFileHandler() http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// validate file size
+		r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+		if err := r.ParseMultipartForm(maxUploadSize); err != nil {
+			renderError(w, "FILE_TOO_BIG", http.StatusBadRequest)
+			return
+		}
+
+		// parse and validate file and post parameters
+		file, handler, err := r.FormFile("file")
+		if err != nil {
+			renderError(w, "INVALID_FILE", http.StatusBadRequest)
+			return
+		}
+		defer file.Close()
+		fileBytes, err := ioutil.ReadAll(file)
+		if err != nil {
+			renderError(w, "INVALID_FILE", http.StatusBadRequest)
+			return
+		}
+
+		// check file type, detectcontenttype only needs the first 512 bytes
+		filetype := handler.Filename
+		switch strings.Split(filetype, ".")[1] {
+		case "py":
+			break
+		default:
+			renderError(w, "INVALID_FILE_TYPE", http.StatusBadRequest)
+			return
+		}
+
+		hex := md5.New()
+		md5Name := hex.Sum([]byte(strings.Split(filetype, ".")[0]))
+		fileName := fmt.Sprintf("%x", md5Name)
+		randString := randToken(5)
+		fileName = randString + fileName
+
+		fileType := strings.Split(filetype, ".")[1]
+		//fileEndings, err := mime.ExtensionsByType(fileType)
+		if err != nil {
+			renderError(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		newPath := filepath.Join(uploadPath, fileName+"."+fileType)
+		fmt.Printf("FileType: %s, File: %s\n", fileType, newPath)
+
+		// write file
+		newFile, err := os.Create(newPath)
+		if err != nil {
+			renderError(w, "CANT_WRITE_FILE", http.StatusInternalServerError)
+			return
+		}
+		defer newFile.Close() // idempotent, okay to call twice
+		if _, err := newFile.Write(fileBytes); err != nil || newFile.Close() != nil {
+			renderError(w, "CANT_WRITE_FILE", http.StatusInternalServerError)
+			return
+		}
+
+		tmp :=exec.Command("/bin/bash","-c", "pwd;")
+		tmpPwd, _ := tmp.CombinedOutput()
+
+		w.Write([]byte("SUCCESS"))
+
+		toIpfs := "ipfs add " + uploadPath + "/" + fileName+"."+fileType + " | awk '{print $2 \" \" $3}' >> "+ string(tmpPwd) +"file.txt"
+
+		cmd := exec.Command("/bin/bash", "-c", toIpfs)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		log.Println(cmd.Start())
+	})
+}
+
+func renderError(w http.ResponseWriter, message string, statusCode int) {
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write([]byte(message))
+}
+
+func randToken(len int) string {
+	b := make([]byte, len)
+	rand.Read(b)
+	return fmt.Sprintf("%x", b)
 }
