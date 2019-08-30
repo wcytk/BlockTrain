@@ -41,8 +41,9 @@ func NewServer() *Server {
 
 const (
 	maxUploadSize = 2 * 1024 * 2014 // 2MB
-	uploadPath    = "D:/Work/Project/2019 Summer/distributeTensorflowExample/upload"
 )
+
+var uploadPath = ""
 
 func (server *Server) Start() {
 	if err := http.ListenAndServe(":12345", nil); err != nil {
@@ -56,6 +57,9 @@ func (server *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server *Server) setRoute() {
+	tmp := exec.Command("/bin/bash", "-c", "pwd;")
+	tmpPwd, _ := tmp.CombinedOutput()
+	uploadPath = string(tmpPwd) + "../upload"
 	http.HandleFunc("/", server.ServeHTTP)
 	http.HandleFunc("/addIP", server.addIP)
 	http.HandleFunc("/prepareTraining", server.prepareTraining)
@@ -302,12 +306,9 @@ func uploadFileHandler() http.HandlerFunc {
 			return
 		}
 
-		tmp :=exec.Command("/bin/bash","-c", "pwd;")
-		tmpPwd, _ := tmp.CombinedOutput()
-
 		w.Write([]byte("SUCCESS"))
 
-		toIpfs := "ipfs add " + uploadPath + "/" + fileName+"."+fileType + " | awk '{print $2 \" \" $3}' >> "+ string(tmpPwd) +"../upload/file.txt"
+		toIpfs := "ipfs add " + uploadPath + "/" + fileName + "." + fileType + " | awk '{print $2 \" \" $3}' >> " + uploadPath + "/file.txt"
 
 		cmd := exec.Command("/bin/bash", "-c", toIpfs)
 		cmd.Stdout = os.Stdout
