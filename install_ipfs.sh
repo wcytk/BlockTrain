@@ -40,12 +40,12 @@ else
     # 使用go安装ipfs-swarm的密钥产生工具
     # Using go to install ipfs-swarm key generator
     go get -u github.com/Kubuxu/go-ipfs-swarm-key-gen/ipfs-swarm-key-gen
-
-    # 这里直接给出一个私有网络的swarm.key，如果有需要可以自己产生一个新的swarm.key以创建自己的私有网络
-    # A private network's swarm.key is been given here, if you need a new private network, you can generate yourself
-    # ipfs-swarm-key-gen > /root/.ipfs/swarm.key
-    cp $DIR/swarm.key /root/.ipfs
  fi
+
+# 这里直接给出一个私有网络的swarm.key，如果有需要可以自己产生一个新的swarm.key以创建自己的私有网络
+# A private network's swarm.key is been given here, if you need a new private network, you can generate yourself
+# ipfs-swarm-key-gen > /root/.ipfs/swarm.key
+cp $DIR/swarm.key /root/.ipfs
 
  # 清除安装包
 # Cleaning up package
