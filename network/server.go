@@ -104,6 +104,8 @@ func (server *Server) getFiles(w http.ResponseWriter, r *http.Request) {
 	for {
 		a, c := br.ReadString('\n')
 
+		log.Println(a)
+
 		fileInfo["fileHash"] = strings.Split(a, " ")[0]
 		fileInfo["fileName"] = strings.Split(a, " ")[1]
 		files[i] = fileInfo
