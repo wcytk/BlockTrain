@@ -112,7 +112,7 @@ func (server *Server) getFiles(w http.ResponseWriter, r *http.Request) {
 			files[i] = fileInfo
 			i++
 		}
-		if err != nil {
+		if c != nil {
 			if err == io.EOF {
 				break
 			}
