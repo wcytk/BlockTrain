@@ -102,19 +102,17 @@ func (server *Server) getFiles(w http.ResponseWriter, r *http.Request) {
 	files := make(map[int]map[string]string)
 	i := 0
 	for {
-		a,_ , c := br.ReadLine()
+		a, c := br.ReadString('\n')
+
+		if err == io.EOF {
+			break
+		}
 
 		if len(a) != 0 {
-			fileInfo["fileHash"] = strings.Split(string(a), " ")[0]
-			fileInfo["fileName"] = strings.Split(string(a), " ")[1]
+			fileInfo["fileHash"] = strings.Split(a, " ")[0]
+			fileInfo["fileName"] = strings.Split(a, " ")[1]
 			files[i] = fileInfo
 			i++
-		}
-		if c != nil {
-			if err == io.EOF {
-				break
-			}
-			fmt.Println(err)
 		}
 	}
 	data, err := json.Marshal(files)
