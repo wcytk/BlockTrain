@@ -406,7 +406,7 @@ func uploadFileHandler() http.HandlerFunc {
 		cmd.Stderr = os.Stderr
 		log.Println(cmd.Start())
 
-		updateModel(fileName)
+		updateModel(fileName + "." + fileType)
 	})
 }
 
