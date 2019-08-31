@@ -67,6 +67,7 @@ func (server *Server) setRoute() {
 	uploadPath = strings.Replace(string(tmpPwd), "\n", "", -1) + "/upload"
 	http.HandleFunc("/", server.ServeHTTP)
 	http.HandleFunc("/addIP", server.addIP)
+	http.HandleFunc("/getFiles", server.getFiles)
 	http.HandleFunc("/addToIPFS", server.addToIPFS)
 	http.HandleFunc("/prepareTraining", server.prepareTraining)
 	http.HandleFunc("/startTraining", server.startTraining)
