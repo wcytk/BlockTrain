@@ -98,11 +98,11 @@ func (server *Server) getFiles(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	br := bufio.NewReader(file)
-	fileInfo := make(map[string]string)
 	files := make(map[int]map[string]string)
 	i := 0
 	for {
-		a, err := br.ReadString('\n')
+		fileInfo := make(map[string]string)
+		a, _, err := br.ReadLine()
 
 		if err == io.EOF {
 			break
