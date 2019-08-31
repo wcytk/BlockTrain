@@ -106,13 +106,17 @@ func (server *Server) getFiles(w http.ResponseWriter, r *http.Request) {
 
 		log.Println(a)
 
-		fileInfo["fileHash"] = strings.Split(a, " ")[0]
-		fileInfo["fileName"] = strings.Split(a, " ")[1]
-		files[i] = fileInfo
-		i++
-
-		if c == io.EOF {
-			break
+		if len(a) != 0 {
+			fileInfo["fileHash"] = strings.Split(a, " ")[0]
+			fileInfo["fileName"] = strings.Split(a, " ")[1]
+			files[i] = fileInfo
+			i++
+		}
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Println(err)
 		}
 	}
 	data, err := json.Marshal(files)
