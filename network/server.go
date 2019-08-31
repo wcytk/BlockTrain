@@ -1,6 +1,7 @@
 package network
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/md5"
 	"crypto/rand"
@@ -8,6 +9,7 @@ import (
 	"fmt"
 	"github.com/wcytk/BlockTrain/train"
 	"github.com/wcytk/BlockTrain/transaction"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -43,6 +45,8 @@ const (
 	maxUploadSize = 2 * 1024 * 2014 // 2MB
 )
 
+var rootPath = ""
+
 var uploadPath = ""
 
 func (server *Server) Start() {
@@ -59,9 +63,11 @@ func (server *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (server *Server) setRoute() {
 	tmp := exec.Command("/bin/bash", "-c", "pwd;")
 	tmpPwd, _ := tmp.CombinedOutput()
-	uploadPath = strings.Replace(string(tmpPwd),"\n","", -1) + "/upload"
+	rootPath = strings.Replace(string(tmpPwd), "\n", "", -1)
+	uploadPath = strings.Replace(string(tmpPwd), "\n", "", -1) + "/upload"
 	http.HandleFunc("/", server.ServeHTTP)
 	http.HandleFunc("/addIP", server.addIP)
+	http.HandleFunc("/addToIPFS", server.addToIPFS)
 	http.HandleFunc("/prepareTraining", server.prepareTraining)
 	http.HandleFunc("/startTraining", server.startTraining)
 	http.HandleFunc("/stopTraining", server.stopTraining)
@@ -78,6 +84,86 @@ func (server *Server) req(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("You are communicating in local network!"))
 	} else {
 		w.Write([]byte("Your public ip is " + ClientPublicIP(r)))
+	}
+}
+
+func (server *Server) getFiles(w http.ResponseWriter, r *http.Request) {
+	filePath := uploadPath + "/file.txt"
+	file, err := os.Open(filePath)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
+	defer file.Close()
+
+	br := bufio.NewReader(file)
+	fileInfo := make(map[string]string)
+	files := make(map[int]map[string]string)
+	i := 0
+	for {
+		a, _, c := br.ReadLine()
+		if c == io.EOF {
+			break
+		}
+
+		fileInfo["fileHash"] = strings.Split(string(a), " ")[0]
+		fileInfo["fileName"] = strings.Split(string(a), " ")[1]
+		files[i] = fileInfo
+		i++
+	}
+	data, err := json.Marshal(files)
+	if err != nil {
+		log.Println(err)
+	}
+	w.Write(data)
+}
+
+func (server *Server) addToIPFS(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	if r.Form["fileName"][0] != "" {
+		filePath := uploadPath + "/" + r.Form["fileName"][0]
+		toIpfs := "ipfs add " + filePath + " | awk '{print $2 \" \" $3}' >> " + uploadPath + "/file.txt"
+
+		cmd := exec.Command("/bin/bash", "-c", toIpfs)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		log.Println(cmd.Start())
+
+		updateModel(r.Form["fileName"][0])
+	}
+}
+
+func updateModel(fileName string) {
+	filePath := uploadPath + "/" + fileName
+	update := "cp " + filePath + " " + rootPath + "/train/distribute.py"
+
+	cmd := exec.Command("/bin/bash", "-c", update)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	log.Println(cmd.Start())
+}
+
+func updateModelFromIPFS(fileHash string) {
+	if isTraining == true {
+		log.Println("You are currently training a model!")
+	} else {
+		download := "ipfs get " + fileHash
+		cmd := exec.Command("/bin/bash", "-c", download)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		log.Println(cmd.Start())
+
+		filePath := uploadPath + "/" + fileHash
+		update := "cp " + filePath + " " + rootPath + "/train/distribute.py"
+
+		cmd = exec.Command("/bin/bash", "-c", update)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		log.Println(cmd.Start())
 	}
 }
 
@@ -232,9 +318,13 @@ func (server *Server) enterTraining(w http.ResponseWriter, r *http.Request) {
 
 	index := int(formData["index"].(float64))
 
+	fileHash := formData["fileHash"].(string)
+
 	hasEntered := sort.Search(len(hostClientIPs), func(hasEntered int) bool {
 		return hostClientIPs[hasEntered] >= clientIP
 	})
+
+	updateModelFromIPFS(fileHash)
 
 	sort.Strings(hostClientIPs)
 
@@ -245,6 +335,7 @@ func (server *Server) enterTraining(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Write([]byte("You haven't entered the training yet!"))
 	}
+
 }
 
 func uploadFileHandler() http.HandlerFunc {
@@ -314,6 +405,8 @@ func uploadFileHandler() http.HandlerFunc {
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		log.Println(cmd.Start())
+
+		updateModel(fileName)
 	})
 }
 
