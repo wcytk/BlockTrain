@@ -87,7 +87,7 @@ else
 		echo "Directory $GOPATH already exists ..."
 	fi
 	echo "Now start installing..."
-	GOFILE="/root/go1.12.8.linux-amd64.tar.gz"
+	GOFILE="/root/go1.13.linux-amd64.tar.gz"
 	GODIR="/usr/local/go/"
 	if [ ! -f "$GOFILE" ]; then
 		wget -P /root https://dl.google.com/go/go1.13.linux-amd64.tar.gz
@@ -97,7 +97,7 @@ else
 	if [ ! -d "$GODIR" ]; then
 		mkdir $GODIR
 		echo "Directory $GODIR created!"
-		tar -xzvf /root/go1.12.8.linux-amd64.tar.gz -C /usr/local
+		tar -xzvf /root/go1.13.linux-amd64.tar.gz -C /usr/local
 	else
 		echo "Directory already exists ..."
 	fi
@@ -139,4 +139,4 @@ source /etc/profile
 echo "Cleaning up ..."
 rm -rf /root/Python-3.6.6
 rm -rf /root/Python-3.6.6.tar.xz
-rm -rf /root/go1.12.8.linux-amd64.tar.gz
+rm -rf /root/go1.13.linux-amd64.tar.gz
