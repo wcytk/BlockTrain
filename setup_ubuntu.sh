@@ -54,7 +54,7 @@ else
 	GOFILE="/root/go1.12.8.linux-amd64.tar.gz"
 	GODIR="/usr/local/go/"
 	if [ ! -f "$GOFILE" ]; then
-		wget -P /root https://dl.google.com/go/go1.12.8.linux-amd64.tar.gz
+		wget -P /root https://dl.google.com/go/go1.13.linux-amd64.tar.gz
 	else
 		echo "File already downloaded, using cache ..."
 	fi
