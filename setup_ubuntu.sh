@@ -117,4 +117,8 @@ rm -rf /root/Python-3.6.6.tar.xz
 rm -rf /root/go1.13.linux-amd64.tar.gz
 }
 
-sudo bash -c "$(declare -f ubuntu_install); ubuntu_install $user"
+if [ "$user" == root ]; then
+	ubuntu_install $user
+else
+	sudo bash -c "$(declare -f ubuntu_install); ubuntu_install $user"
+fi
