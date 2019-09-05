@@ -45,7 +45,7 @@ else
 	echo "Where do you want to set the GOPATH:"
 	read GOPATH
 	if [ ! -d "$GOPATH" ]; then
-		mkdir $GOPATH
+		mkdir -p $GOPATH
 		echo "Directory $GOPATH created!"
 	else
 		echo "Directory $GOPATH already exists ..."

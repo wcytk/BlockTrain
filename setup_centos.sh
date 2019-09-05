@@ -59,7 +59,7 @@ else
 	fi
 	PYTHONDIR=/usr/local/python3
 	if [ ! -d "$PYTHONDIR" ]; then
-		0mkdir $PYTHONDIR
+		mkdir -p $PYTHONDIR
 	else
 		echo "$PYTHONDIR already exists"
 	fi
@@ -81,7 +81,7 @@ else
 	echo "Where do you want to set the GOPATH:"
 	read GOPATH
 	if [ ! -d "$GOPATH" ]; then
-		mkdir $GOPATH
+		mkdir -p $GOPATH
 		echo "Directory $GOPATH created!"
 	else
 		echo "Directory $GOPATH already exists ..."
