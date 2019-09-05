@@ -37,7 +37,7 @@ python3 -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # 检测系统是否存在go语言环境并进行安装
 # Detect for go environment and set it up
-source /root/.bashrc &&
+source /etc/profile &&
 if command -v go > /dev/null; then
 	echo "Your go environment has been installed!"
 else
@@ -62,21 +62,22 @@ else
 		mkdir $GODIR
 		echo "Directory $GODIR created!"
 		tar -xzvf /root/go1.13.linux-amd64.tar.gz -C /usr/local
+		chown -R $user /usr/local/go
 	else
 		echo "Directory $GODIR already exists ..."
 	fi
 	GOARCH=$(dpkg --print-architecture)
-	echo "export GO111MODULE=on" >> /root/.bashrc
-	echo "export GOROOT=/usr/local/go" >> /root/.bashrc
-	echo "export GOOS=linux" >> /root/.bashrc
-	echo "export GOARCH=$GOARCH" >> /root/.bashrc
-	echo "export GOPATH=$GOPATH" >> /root/.bashrc
-	echo "export GOBIN=\$GOROOT/bin/" >> /root/.bashrc
-	echo "export GOTOOLS=\$GOROOT/pkg/tool" >> /root/.bashrc
-	echo "export PATH=\$PATH:\$GOBIN:\$GOTOOLS" >> /root/.bashrc
-	source /root/.bashrc &&
+	echo "export GO111MODULE=on" >> /etc/profile
+	echo "export GOROOT=/usr/local/go" >> /etc/profile
+	echo "export GOOS=linux" >> /etc/profile
+	echo "export GOARCH=$GOARCH" >> /etc/profile
+	echo "export GOPATH=$GOPATH" >> /etc/profile
+	echo "export GOBIN=\$GOROOT/bin/" >> /etc/profile
+	echo "export GOTOOLS=\$GOROOT/pkg/tool" >> /etc/profile
+	echo "export PATH=\$PATH:\$GOBIN:\$GOTOOLS" >> /etc/profile
+	source /etc/profile &&
 	(if command -v go > /dev/null; then
-		echo "Done! Now please source /root/.bashrc or restart a bash to use go!"
+		echo "Done! Now please source /etc/profile or restart a bash to use go!"
 	else
 		echo "Oops! Some issues occurs, try to examine the output or run this scripts again!"
 	fi)
@@ -84,7 +85,7 @@ fi
 
 # 检测和安装ipfs环境
 # Detect and install ipfs environment
-source /root/.bashrc && bash $DIR/install_ipfs.sh
+source /etc/profile && bash $DIR/install_ipfs.sh
 
 # Create python virtual environment
 # 创建python虚拟环境
@@ -96,7 +97,7 @@ source $DIR/train/venv/bin/activate && python -m pip install --upgrade pip setup
 
 # 更新环境变量
 # Update environment
-source /root/.bashrc
+source /etc/profile
 
 # 清除安装包
 # Cleaning up package
