@@ -3,19 +3,30 @@
 # Ubuntu 下的安装
 # Setup for Ubuntu
 
-# 安装方法，在管理员(root)权限下，执行sudo bash setup.sh
-# Installation: exec "sudo bash setup.sh" in root
+# 安装方法，执行bash setup.sh
+# Installation: exec "bash setup.sh"
 
+# 首先探测当前用户
+# Detect user first
+user=$( whoami )
+
+ubuntu_install() {
 # 判断当前用户身份是否是root
 # Detect whether user is root
 # user=$(env | grep USER | cut -d "=" -f 2 | head -1)
-user=$( whoami )
-if [ "$user" == "root" ]; then
+root=$( whoami )
+if [ "$root" == "root" ]; then
 	echo "You are in root mode!"
 else
 	echo "You are not in root mode!"
 	echo "Please use \"sudo su\" to change into root mode, or \"sudo bash setup_ubuntu.sh\""
 	exit 1
+fi
+
+if [ "$1" == "root" ]; then
+	profile="/root/.bashrc"
+else
+	profile="/home/$1/.bashrc"
 fi
 
 # 请以root身份运行(su sudo)
@@ -37,7 +48,7 @@ python3 -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # 检测系统是否存在go语言环境并进行安装
 # Detect for go environment and set it up
-source /etc/profile &&
+source $profile &&
 if command -v go > /dev/null; then
 	echo "Your go environment has been installed!"
 else
@@ -62,22 +73,22 @@ else
 		mkdir $GODIR
 		echo "Directory $GODIR created!"
 		tar -xzvf /root/go1.13.linux-amd64.tar.gz -C /usr/local
-		chown -R $user /usr/local/go
+		chown -R $1 /usr/local/go
 	else
 		echo "Directory $GODIR already exists ..."
 	fi
 	GOARCH=$(dpkg --print-architecture)
-	echo "export GO111MODULE=on" >> /etc/profile
-	echo "export GOROOT=/usr/local/go" >> /etc/profile
-	echo "export GOOS=linux" >> /etc/profile
-	echo "export GOARCH=$GOARCH" >> /etc/profile
-	echo "export GOPATH=$GOPATH" >> /etc/profile
-	echo "export GOBIN=\$GOROOT/bin/" >> /etc/profile
-	echo "export GOTOOLS=\$GOROOT/pkg/tool" >> /etc/profile
-	echo "export PATH=\$PATH:\$GOBIN:\$GOTOOLS" >> /etc/profile
-	source /etc/profile &&
+	echo "export GO111MODULE=on" >> $profile
+	echo "export GOROOT=/usr/local/go" >> $profile
+	echo "export GOOS=linux" >> $profile
+	echo "export GOARCH=$GOARCH" >> $profile
+	echo "export GOPATH=$GOPATH" >> $profile
+	echo "export GOBIN=\$GOROOT/bin/" >> $profile
+	echo "export GOTOOLS=\$GOROOT/pkg/tool" >> $profile
+	echo "export PATH=\$PATH:\$GOBIN:\$GOTOOLS" >> $profile
+	source $profile &&
 	(if command -v go > /dev/null; then
-		echo "Done! Now please source /etc/profile or restart a bash to use go!"
+		echo "Done! Now please source $profile or restart a bash to use go!"
 	else
 		echo "Oops! Some issues occurs, try to examine the output or run this scripts again!"
 	fi)
@@ -85,7 +96,7 @@ fi
 
 # 检测和安装ipfs环境
 # Detect and install ipfs environment
-source /etc/profile && bash $DIR/install_ipfs.sh
+source $profile && bash $DIR/install_ipfs.sh
 
 # Create python virtual environment
 # 创建python虚拟环境
@@ -97,10 +108,13 @@ source $DIR/train/venv/bin/activate && python -m pip install --upgrade pip setup
 
 # 更新环境变量
 # Update environment
-source /etc/profile
+source $profile
 
 # 清除安装包
 # Cleaning up package
 echo "Cleaning up ..."
 rm -rf /root/Python-3.6.6.tar.xz
 rm -rf /root/go1.13.linux-amd64.tar.gz
+}
+
+sudo bash -c "$(declare -f ubuntu_install); ubuntu_install $user"
