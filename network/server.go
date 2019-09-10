@@ -322,7 +322,10 @@ func (server *Server) enterTraining(w http.ResponseWriter, r *http.Request) {
 
 	index := int(formData["index"].(float64))
 
-	fileHash := formData["fileHash"].(string)
+	var fileHash string
+	if formData["fileHash"] != nil {
+		fileHash = formData["fileHash"].(string)
+	}
 
 	hasEntered := sort.Search(len(hostClientIPs), func(hasEntered int) bool {
 		return hostClientIPs[hasEntered] >= clientIP
