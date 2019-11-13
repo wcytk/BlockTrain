@@ -36,15 +36,15 @@ fi
 # Obtain the directory you are working on
 DIR=$( pwd )
 
-# $act apt-get update -y
-# $act apt-get install tar -y
-# $act apt-get install wget -y
-# $act apt-get install dpkg -y
-# $act apt-get install python3 -y
-# $act apt-get install python3-pip -y
-# $act apt-get install python3-venv -y
+$act apt-get update -y
+$act apt-get install tar -y
+$act apt-get install wget -y
+$act apt-get install dpkg -y
+$act apt-get install python3 -y
+$act apt-get install python3-pip -y
+$act apt-get install python3-venv -y
 
-# python3 -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
+python3 -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 if [ "$user" == "root" ]; then
 	profile="/root/.bashrc"
