@@ -38,7 +38,7 @@ else
 	echo "Your python3 environment hasn't been installed!"
 	yum -y groupinstall "Development tools"
 	yum -y install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel
-	echo -n "是否使用国内镜像(Using mirror site) [y/d/N]"
+	echo -n "是否使用国内镜像(Using mirror site) [y/d/N] "
 	read checkMirror
 	echo "Now installing python3.6.6 ..."
 	if [ ! -f "/root/Python-3.6.6.tar.xz" ]; then
@@ -111,11 +111,11 @@ else
 	echo "export GOTOOLS=\$GOROOT/pkg/tool" >> /etc/profile
 	echo "export PATH=\$PATH:\$GOBIN:\$GOTOOLS" >> /etc/profile
 	source /etc/profile &&
-	(if command -v go > /dev/null; then
+	if command -v go > /dev/null; then
 		echo "Done! Now please source /root/.bashrc or restart a bash to use go!"
 	else
 		echo "Oops! Some issues occurs, try to examine the output or run this scripts again!"
-	fi)
+	fi
 fi
 
 # 检测和安装ipfs环境
