@@ -10,11 +10,17 @@
 # Detect user first
 user=$( whoami )
 
-ubuntu_install() {
 # 判断当前用户身份是否是root
 # Detect whether user is root
 # user=$(env | grep USER | cut -d "=" -f 2 | head -1)
-root=$( whoami )
+if [ "$user" == "root" ]; then
+	root=$user
+	act=""
+else
+	root=$( sudo -s whoami )
+	act="sudo -s"
+fi
+
 if [ "$root" == "root" ]; then
 	echo "You are in root mode!"
 else
@@ -23,35 +29,36 @@ else
 	exit 1
 fi
 
-if [ "$1" == "root" ]; then
-	profile="/root/.bashrc"
-else
-	profile="/home/$1/.bashrc"
-fi
-
 # 请以root身份运行(su sudo)
 # Please run it in root(su sudo)
 
 # 获取当前工作目录
-# Obtain the directory you working on
+# Obtain the directory you are working on
 DIR=$( pwd )
 
-apt-get update -y
-apt-get install tar -y
-apt-get install wget -y
-apt-get install dpkg -y
-apt-get install python3 -y
-apt-get install python3-pip -y
-apt-get install python3-venv -y
+# $act apt-get update -y
+# $act apt-get install tar -y
+# $act apt-get install wget -y
+# $act apt-get install dpkg -y
+# $act apt-get install python3 -y
+# $act apt-get install python3-pip -y
+# $act apt-get install python3-venv -y
 
-python3 -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
+# python3 -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+if [ "$user" == "root" ]; then
+	profile="/root/.bashrc"
+else
+	profile="/home/$user/.bashrc"
+fi
 
 # 检测系统是否存在go语言环境并进行安装
 # Detect for go environment and set it up
-source $profile &&
+source "$profile" &&
 if command -v go > /dev/null; then
 	echo "Your go environment has been installed!"
 else
+	echo "$profile"
 	echo "Your go environment hasn't been installed!"
 	echo "Where do you want to set the GOPATH:"
 	read GOPATH
@@ -86,17 +93,22 @@ else
 	echo "export GOBIN=\$GOROOT/bin/" >> $profile
 	echo "export GOTOOLS=\$GOROOT/pkg/tool" >> $profile
 	echo "export PATH=\$PATH:\$GOBIN:\$GOTOOLS" >> $profile
-	source $profile &&
-	(if command -v go > /dev/null; then
-		echo "Done! Now please source $profile or restart a bash to use go!"
-	else
-		echo "Oops! Some issues occurs, try to examine the output or run this scripts again!"
-	fi)
+	if [ "$profile" != "/root/.bashrc" ]; then
+		rootPath="/root/.bashrc"
+		echo "export GO111MODULE=on" >> $rootPath
+		echo "export GOROOT=/usr/local/go" >> $rootPath
+		echo "export GOOS=linux" >> $rootPath
+		echo "export GOARCH=$GOARCH" >> $rootPath
+		echo "export GOPATH=$GOPATH" >> $rootPath
+		echo "export GOBIN=\$GOROOT/bin/" >> $rootPath
+		echo "export GOTOOLS=\$GOROOT/pkg/tool" >> $rootPath
+		echo "export PATH=\$PATH:\$GOBIN:\$GOTOOLS" >> $rootPath
+	fi
 fi
 
 # 检测和安装ipfs环境
 # Detect and install ipfs environment
-source $profile && bash $DIR/install_ipfs.sh
+source $profile && $act bash $DIR/install_ipfs.sh
 
 # Create python virtual environment
 # 创建python虚拟环境
@@ -106,19 +118,12 @@ python3 -m venv $DIR/train/venv
 # -i is for mirror in China, if you don't need it, just delete from "-i"
 source $DIR/train/venv/bin/activate && python -m pip install --upgrade pip setuptools && pip install -r $DIR/train/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-# 更新环境变量
-# Update environment
-source $profile
-
 # 清除安装包
 # Cleaning up package
 echo "Cleaning up ..."
-rm -rf /root/Python-3.6.6.tar.xz
-rm -rf /root/go1.13.linux-amd64.tar.gz
-}
+$act rm -rf /root/Python-3.6.6.tar.xz
+$act rm -rf /root/go1.13.linux-amd64.tar.gz
 
-if [ "$user" == root ]; then
-	ubuntu_install $user
-else
-	sudo bash -c "$(declare -f ubuntu_install); ubuntu_install $user"
-fi
+# 更新环境变量
+# Update environment
+source $profile
